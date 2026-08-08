@@ -1,0 +1,119 @@
+.profile-container {
+  padding-top: 2rem;
+  padding-bottom: 5rem;
+}
+
+.profile-header-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+  text-align: left;
+}
+
+.profile-avatar-container {
+  position: relative;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar-icon {
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: fit-content;
+}
+
+.profile-email {
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.profile-stats {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.stat-count {
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.profile-section-title {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.profile-section-title h3 {
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+.profile-state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .profile-header-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+  
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .profile-badge {
+    margin: 0 auto;
+  }
+  
+  .profile-email {
+    font-size: 1.4rem;
+  }
+}

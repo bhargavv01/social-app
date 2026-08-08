@@ -1,0 +1,136 @@
+.feed-container {
+  padding-top: 2rem;
+  padding-bottom: 5rem;
+}
+
+.feed-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.welcome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge-icon {
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.4));
+}
+
+.feed-title {
+  font-size: 2.75rem;
+  line-height: 1.15;
+  max-width: 600px;
+}
+
+.feed-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 2.5rem;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.search-bar-container:focus-within {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.search-icon {
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.search-bar-container:focus-within .search-icon {
+  color: var(--accent-color);
+}
+
+.search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.feed-state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  animation: spin 1.2s linear infinite;
+  color: var(--accent-color);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.02);
+}
+
+.error-message p {
+  color: #f87171;
+  font-weight: 500;
+}
+
+.empty-state {
+  padding: 4rem 2rem;
+}
+
+.empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state h3 {
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  .feed-title {
+    font-size: 2rem;
+  }
+}
