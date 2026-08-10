@@ -185,6 +185,30 @@
   margin-top: 1rem;
 }
 
+.wakeup-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: rgba(59, 130, 246, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.25) !important;
+  text-align: left;
+}
+
+.wakeup-banner strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.wakeup-banner p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 @media (max-width: 640px) {
   .feed-title {
     font-size: 2rem;

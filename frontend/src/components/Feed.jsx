@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import PostCard from './PostCard';
 import SkeletonCard from './SkeletonCard';
-import { Search, Sparkles, MessageSquare, ArrowLeft, ArrowRight, ArrowUpDown } from 'lucide-react';
+import { Search, Sparkles, MessageSquare, ArrowLeft, ArrowRight, ArrowUpDown, Clock } from 'lucide-react';
 import './Feed.css';
 
 const LIMIT = 6;
@@ -11,6 +11,7 @@ export default function Feed() {
   const { apiBaseUrl } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showServerNotice, setShowServerNotice] = useState(false);
   const [error, setError] = useState(null);
   
   // Controls
@@ -30,9 +31,16 @@ export default function Feed() {
   }, [searchQuery]);
 
   const fetchPosts = useCallback(async () => {
+    let noticeTimer;
     try {
       setLoading(true);
       setError(null);
+
+      // Show "Waking up server..." notice if request takes >2.5s
+      noticeTimer = setTimeout(() => {
+        setShowServerNotice(true);
+      }, 2500);
+
       const skip = (page - 1) * LIMIT;
       const params = new URLSearchParams({
         limit: LIMIT.toString(),
@@ -51,8 +59,10 @@ export default function Feed() {
       setHasMore(data.length === LIMIT);
     } catch (err) {
       console.error(err);
-      setError('Could not connect to the server. Please ensure the backend is running.');
+      setError('Could not connect to backend. Render free tier servers take ~40 seconds to wake up. Click below to retry.');
     } finally {
+      clearTimeout(noticeTimer);
+      setShowServerNotice(false);
       setLoading(false);
     }
   }, [apiBaseUrl, page, sortBy, debouncedSearch]);
@@ -117,6 +127,16 @@ export default function Feed() {
         </div>
       </div>
 
+      {showServerNotice && loading && (
+        <div className="wakeup-banner glass-panel fade-in">
+          <Clock className="loading-spinner" size={20} />
+          <div>
+            <strong>Connecting & Waking Up Backend Server...</strong>
+            <p>Render free servers sleep after inactivity. Initial wakeup takes 30-40 seconds. Thank you for your patience!</p>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="posts-list">
           {[1, 2, 3].map((i) => (
@@ -127,7 +147,7 @@ export default function Feed() {
         <div className="feed-state-message error-message glass-panel">
           <p>{error}</p>
           <button onClick={fetchPosts} className="btn btn-secondary mt-4">
-            Try Again
+            Retry Connection
           </button>
         </div>
       ) : posts.length === 0 ? (
