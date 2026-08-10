@@ -9,8 +9,12 @@ def get_db():
         yield db
     finally:
         db.close()
-        
-sql_url = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
+
+if settings.database_url:
+    # Render / Heroku database URLs often start with postgres://, fix for SQLAlchemy 1.4+
+    sql_url = settings.database_url.replace("postgres://", "postgresql://", 1)
+else:
+    sql_url = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
 
 engine = create_engine(sql_url)
 
