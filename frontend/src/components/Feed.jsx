@@ -1,59 +1,83 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import PostCard from './PostCard';
-import { Search, Loader2, Sparkles, MessageSquare } from 'lucide-react';
+import SkeletonCard from './SkeletonCard';
+import { Search, Sparkles, MessageSquare, ArrowLeft, ArrowRight, ArrowUpDown } from 'lucide-react';
 import './Feed.css';
+
+const LIMIT = 6;
 
 export default function Feed() {
   const { apiBaseUrl } = useAuth();
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Controls
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sortBy, setSortBy] = useState('latest');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  const fetchPosts = async () => {
+  // Debounce search query changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1); // reset to first page on search
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${apiBaseUrl}/posts`);
-      if (!res.ok) {
-        throw new Error('Failed to retrieve posts');
+      setError(null);
+      const skip = (page - 1) * LIMIT;
+      const params = new URLSearchParams({
+        limit: LIMIT.toString(),
+        skip: skip.toString(),
+        sort_by: sortBy,
+      });
+      if (debouncedSearch) {
+        params.append('search', debouncedSearch);
       }
+
+      const res = await fetch(`${apiBaseUrl}/posts?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to retrieve posts');
       const data = await res.json();
-      // Sort posts by ID descending (newest first)
-      const sorted = data.sort((a, b) => b.Post.id - a.Post.id);
-      setPosts(sorted);
-      setFilteredPosts(sorted);
+      
+      setPosts(data);
+      setHasMore(data.length === LIMIT);
     } catch (err) {
       console.error(err);
       setError('Could not connect to the server. Please ensure the backend is running.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBaseUrl, page, sortBy, debouncedSearch]);
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
-  useEffect(() => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) {
-      setFilteredPosts(posts);
-      return;
-    }
-
-    const filtered = posts.filter(
-      (item) =>
-        item.Post.title.toLowerCase().includes(query) ||
-        item.Post.content.toLowerCase().includes(query) ||
-        item.Post.owner.email.toLowerCase().includes(query)
-    );
-    setFilteredPosts(filtered);
-  }, [searchQuery, posts]);
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+    setPage(1);
+  };
 
   const handleDeleteSuccess = (deletedPostId) => {
     setPosts((prev) => prev.filter((item) => item.Post.id !== deletedPostId));
+  };
+
+  const handleUpdateSuccess = (postId, updatedPost) => {
+    setPosts((prev) =>
+      prev.map((item) =>
+        item.Post.id === postId
+          ? { ...item, Post: { ...item.Post, ...updatedPost } }
+          : item
+      )
+    );
   };
 
   return (
@@ -67,25 +91,37 @@ export default function Feed() {
           Share your vibes, <span className="gradient-text">connect with others</span>
         </h1>
         <p className="feed-subtitle">
-          An interactive feed designed for sharing thoughts and voting on engaging content.
+          An interactive feed with real-time voting, search filtering, and pagination.
         </p>
       </header>
 
-      <div className="search-bar-container glass-panel">
-        <Search className="search-icon" size={20} />
-        <input
-          type="text"
-          placeholder="Search posts, descriptions, or authors..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="search-input"
-        />
+      <div className="controls-row">
+        <div className="search-bar-container glass-panel">
+          <Search className="search-icon" size={20} />
+          <input
+            type="text"
+            placeholder="Search posts or topics..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+        </div>
+
+        <div className="sort-container glass-panel">
+          <ArrowUpDown size={16} className="sort-icon" />
+          <select value={sortBy} onChange={handleSortChange} className="sort-select">
+            <option value="latest">Latest First</option>
+            <option value="votes">Most Voted</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
-        <div className="feed-state-message">
-          <Loader2 className="loading-spinner" size={40} />
-          <p>Loading posts...</p>
+        <div className="posts-list">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       ) : error ? (
         <div className="feed-state-message error-message glass-panel">
@@ -94,22 +130,53 @@ export default function Feed() {
             Try Again
           </button>
         </div>
-      ) : filteredPosts.length === 0 ? (
+      ) : posts.length === 0 ? (
         <div className="feed-state-message empty-state glass-panel">
           <MessageSquare size={48} className="empty-icon" />
           <h3>No posts found</h3>
-          <p>Be the first to share a post with the community!</p>
+          <p>
+            {debouncedSearch
+              ? `No matching results for "${debouncedSearch}". Try another query.`
+              : 'Be the first to share a post with the community!'}
+          </p>
         </div>
       ) : (
-        <div className="posts-list">
-          {filteredPosts.map((postObj) => (
-            <PostCard
-              key={postObj.Post.id}
-              postObj={postObj}
-              onDeleteSuccess={handleDeleteSuccess}
-            />
-          ))}
-        </div>
+        <>
+          <div className="posts-list">
+            {posts.map((postObj) => (
+              <PostCard
+                key={postObj.Post.id}
+                postObj={postObj}
+                onDeleteSuccess={handleDeleteSuccess}
+                onUpdateSuccess={handleUpdateSuccess}
+              />
+            ))}
+          </div>
+
+          <div className="pagination-bar glass-panel">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1 || loading}
+              className="btn btn-secondary pagination-btn"
+            >
+              <ArrowLeft size={16} />
+              <span>Previous</span>
+            </button>
+
+            <span className="pagination-info">
+              Page <strong>{page}</strong>
+            </span>
+
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!hasMore || loading}
+              className="btn btn-secondary pagination-btn"
+            >
+              <span>Next</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

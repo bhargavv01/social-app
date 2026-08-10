@@ -1,10 +1,16 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class CreatePost(BaseModel):
     title : str
     content : str
     published : bool = True
+
+class UpdatePost(BaseModel):
+    title : Optional[str] = None
+    content : Optional[str] = None
+    published : Optional[bool] = None
 
 class User(BaseModel):
     email : str
@@ -17,7 +23,8 @@ class Post(BaseModel):
     owner_id : int
     title : str
     content : str
-    published : bool 
+    published : bool
+    created_at : datetime
     owner : User
 
     class Config:

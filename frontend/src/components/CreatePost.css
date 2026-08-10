@@ -44,6 +44,30 @@
   gap: 1.25rem;
 }
 
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.label-row .form-label {
+  margin-bottom: 0;
+}
+
+.char-count {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  transition: color var(--transition-fast);
+}
+
+.char-count.over-limit {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
 .form-error-alert {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);

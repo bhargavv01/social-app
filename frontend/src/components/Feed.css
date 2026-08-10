@@ -43,12 +43,18 @@
   line-height: 1.5;
 }
 
+.controls-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
 .search-bar-container {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1.25rem;
-  margin-bottom: 2.5rem;
   background: rgba(255, 255, 255, 0.02) !important;
 }
 
@@ -78,6 +84,56 @@
 
 .search-input::placeholder {
   color: var(--text-muted);
+}
+
+.sort-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.sort-icon {
+  color: var(--text-muted);
+}
+
+.sort-select {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+
+.sort-select option {
+  background: #14161c;
+  color: var(--text-primary);
+}
+
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  margin-top: 2rem;
+}
+
+.pagination-info {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.pagination-info strong {
+  color: var(--text-primary);
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .feed-state-message {
@@ -132,5 +188,9 @@
 @media (max-width: 640px) {
   .feed-title {
     font-size: 2rem;
+  }
+
+  .controls-row {
+    flex-direction: column;
   }
 }

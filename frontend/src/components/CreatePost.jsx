@@ -1,37 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { PenTool, Check, Loader2, ArrowLeft } from 'lucide-react';
 import './CreatePost.css';
 
+const TITLE_MAX = 200;
+const CONTENT_MAX = 5000;
+
 export default function CreatePost() {
   const { user, token, apiBaseUrl } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [published, setPublished] = useState(true);
-  
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
 
-  // Protected route enforcement
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
+    if (!user) navigate('/login');
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      setError('Title and content cannot be blank.');
+      addToast('Title and content cannot be blank.', 'error');
       return;
     }
 
     setSubmitting(true);
-    setError(null);
-
     try {
       const res = await fetch(`${apiBaseUrl}/posts`, {
         method: 'POST',
@@ -39,22 +37,18 @@ export default function CreatePost() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title,
-          content,
-          published,
-        }),
+        body: JSON.stringify({ title, content, published }),
       });
 
       if (res.ok) {
+        addToast('Post published successfully!', 'success');
         navigate('/');
       } else {
         const errorData = await res.json();
-        setError(errorData.detail || 'Failed to create post');
+        addToast(errorData.detail || 'Failed to create post', 'error');
       }
     } catch (err) {
-      console.error(err);
-      setError('Connection failed. Please verify your backend server is running.');
+      addToast('Connection failed. Is the backend running?', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -77,12 +71,13 @@ export default function CreatePost() {
         </header>
 
         <form onSubmit={handleSubmit} className="create-post-form">
-          {error && <div className="form-error-alert">{error}</div>}
-
           <div className="form-group">
-            <label htmlFor="title" className="form-label">
-              Title
-            </label>
+            <div className="label-row">
+              <label htmlFor="title" className="form-label">Title</label>
+              <span className={`char-count ${title.length > TITLE_MAX ? 'over-limit' : ''}`}>
+                {title.length} / {TITLE_MAX}
+              </span>
+            </div>
             <input
               id="title"
               type="text"
@@ -96,9 +91,12 @@ export default function CreatePost() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="content" className="form-label">
-              Content
-            </label>
+            <div className="label-row">
+              <label htmlFor="content" className="form-label">Content</label>
+              <span className={`char-count ${content.length > CONTENT_MAX ? 'over-limit' : ''}`}>
+                {content.length} / {CONTENT_MAX}
+              </span>
+            </div>
             <textarea
               id="content"
               className="form-input form-textarea"

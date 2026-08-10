@@ -12,9 +12,13 @@ from .database import engine, SessionLocal, get_db
 from sqlalchemy.orm import Session
 from .routers import post, user, auth, vote
 from fastapi.middleware.cors import CORSMiddleware
+from .middleware import RateLimiterMiddleware
 
 #models.Base.metadata.create_all(bind = engine)
-app = FastAPI()
+app = FastAPI(title="Social App API", version="1.0.0")
+
+# Add Rate Limiter Middleware (120 requests / minute)
+app.add_middleware(RateLimiterMiddleware, max_requests=120, window_seconds=60)
 
 origins = ["*"]
 

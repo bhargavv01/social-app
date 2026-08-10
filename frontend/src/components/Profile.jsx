@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PostCard from './PostCard';
-import { User, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import SkeletonCard from './SkeletonCard';
+import { User, Sparkles, AlertCircle } from 'lucide-react';
 import './Profile.css';
 
 export default function Profile() {
@@ -13,11 +14,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Enforce authentication
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
+    if (!user) navigate('/login');
   }, [user, navigate]);
 
   const fetchMyPosts = async () => {
@@ -25,31 +23,33 @@ export default function Profile() {
     try {
       setLoading(true);
       const res = await fetch(`${apiBaseUrl}/posts`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch posts');
-      }
+      if (!res.ok) throw new Error('Failed to fetch posts');
       const data = await res.json();
-      
-      // Filter posts where owner_id matches current user id
       const myPosts = data
         .filter((item) => item.Post.owner_id === user.id)
         .sort((a, b) => b.Post.id - a.Post.id);
-        
       setPosts(myPosts);
     } catch (err) {
-      console.error(err);
       setError('Failed to load your posts.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchMyPosts();
-  }, [user]);
+  useEffect(() => { fetchMyPosts(); }, [user]);
 
   const handleDeleteSuccess = (deletedPostId) => {
     setPosts((prev) => prev.filter((item) => item.Post.id !== deletedPostId));
+  };
+
+  const handleUpdateSuccess = (postId, updatedPost) => {
+    setPosts((prev) =>
+      prev.map((item) =>
+        item.Post.id === postId
+          ? { ...item, Post: { ...item.Post, ...updatedPost } }
+          : item
+      )
+    );
   };
 
   if (!user) return null;
@@ -62,7 +62,7 @@ export default function Profile() {
             <User size={48} className="avatar-icon" />
           </div>
         </div>
-        
+
         <div className="profile-info">
           <div className="profile-badge">
             <Sparkles size={12} />
@@ -80,9 +80,8 @@ export default function Profile() {
       </div>
 
       {loading ? (
-        <div className="profile-state-message">
-          <Loader2 className="loading-spinner" size={32} />
-          <p>Loading your posts...</p>
+        <div className="posts-list">
+          {[1, 2].map((i) => <SkeletonCard key={i} />)}
         </div>
       ) : error ? (
         <div className="profile-state-message error-message glass-panel">
@@ -103,6 +102,7 @@ export default function Profile() {
               key={postObj.Post.id}
               postObj={postObj}
               onDeleteSuccess={handleDeleteSuccess}
+              onUpdateSuccess={handleUpdateSuccess}
             />
           ))}
         </div>
